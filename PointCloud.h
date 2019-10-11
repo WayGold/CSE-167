@@ -8,6 +8,7 @@
 #endif
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 #include <vector>
 #include <string>
@@ -36,6 +37,7 @@ public:
 
 	void updatePointSize(GLfloat size);
 	void spin(float deg);
+    void scale(bool direc);
     
     GLfloat get_pointsize(){
         return pointSize;

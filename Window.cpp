@@ -136,7 +136,7 @@ GLFWwindow* Window::createWindow(int width, int height)
 
 	// Call the resize callback to make sure things get drawn immediately.
 	Window::resizeCallback(window, width, height);
-
+    glfwSetScrollCallback(window, scroll_callback);
 	return window;
 }
 
@@ -240,4 +240,15 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		}
 	}
+}
+
+void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
+    // Scroll up
+    if(yoffset > 0){
+        currentObj->scale(1);
+    }
+    // Scroll down
+    else{
+        currentObj->scale(0);
+    }
 }

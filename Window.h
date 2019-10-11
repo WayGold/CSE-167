@@ -47,6 +47,7 @@ public:
 	static void idleCallback();
 	static void displayCallback(GLFWwindow*);
 	static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 };
 
 #endif

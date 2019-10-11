@@ -127,7 +127,6 @@ PointCloud::PointCloud(std::string objFilename, GLfloat pointSize)
 	 * TODO: Section 4, you will need to normalize the object to fit in the
 	 * screen. 
 	 */
-//    glm::vec3 max_point;
     GLfloat sq_distance = 0;
     GLfloat tmp_distance = 0;
     bool dis_flag = true;
@@ -188,8 +187,7 @@ PointCloud::PointCloud(std::string objFilename, GLfloat pointSize)
     // Bind to the EBO. We will use it to store the indices.
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     // Pass in the data.
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(glm::ivec3) * triangles.size(),
-        triangles.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(glm::ivec3) * triangles.size(), triangles.data(), GL_STATIC_DRAW);
     
 	// Unbind from the VBO.
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -209,10 +207,6 @@ void PointCloud::draw()
 {
 	// Bind to the VAO.
 	glBindVertexArray(vao);
-	// Set point size.
-    //glPointSize(pointSize);
-	// Draw points 
-	//glDrawArrays(GL_POINTS, 0, points.size());
     
     // Draw triangles
     glDrawElements(GL_TRIANGLES, 3 * triangles.size(), GL_UNSIGNED_INT, 0);
@@ -239,4 +233,16 @@ void PointCloud::spin(float deg)
 {
 	// Update the model matrix by multiplying a rotation matrix
 	model = glm::rotate(model, glm::radians(deg), glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
+void PointCloud::scale(bool direc){
+    
+    // Scale up
+    if(direc){
+        model = glm::scale(model, glm::vec3(1.2f, 1.2f, 1.2f));
+    }
+    // Scale down
+    else{
+        model = glm::scale(model, glm::vec3(0.8f, 0.8f, 0.8f));
+    }
 }
