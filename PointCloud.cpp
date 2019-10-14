@@ -116,7 +116,7 @@ PointCloud::PointCloud(std::string objFilename, GLfloat pointSize)
         objFile.close();
     }
     
-    std::cerr << "Parsing file: " << objFilename << " Size of triangle: " << triangles.size() << " Size of vn: " << normals.size() << std::endl;
+//    std::cerr << "Parsing file: " << objFilename << " Size of triangle: " << triangles.size() << " Size of vn: " << normals.size() << std::endl;
     
     // Calculate the center coordinates
     x_mid = (x_max + x_min) / 2;
@@ -245,4 +245,8 @@ void PointCloud::scale(bool direc){
     else{
         model = glm::scale(model, glm::vec3(0.8f, 0.8f, 0.8f));
     }
+}
+
+void PointCloud::rotate(glm::mat4 matrix){
+    model = model * matrix;
 }

@@ -26,6 +26,7 @@ class Window
 public:
 	static int width;
 	static int height;
+    static int event;
 	static const char* windowTitle;
 	static Cube* cube;
 	static PointCloud * cubePoints;
@@ -36,8 +37,9 @@ public:
 	static PointCloud * currentObj;
 	static glm::mat4 projection;
 	static glm::mat4 view;
-	static glm::vec3 eye, center, up;
+    static glm::vec3 eye, center, up, lastPoint, curPos, rotAxis;
 	static GLuint program, projectionLoc, viewLoc, modelLoc, colorLoc;
+    static GLfloat angle;
 
 	static bool initializeProgram();
 	static bool initializeObjects();
@@ -47,7 +49,11 @@ public:
 	static void idleCallback();
 	static void displayCallback(GLFWwindow*);
 	static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    static void cursor_callback(GLFWwindow* window, double xpos, double ypos);
+    static void mouse_callback(GLFWwindow* window, int button, int action, int mods);
     static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+    static glm::vec3 trackBallMapping(glm::vec2 point);
+    static glm::mat4 rotMatrix();
 };
 
 #endif

@@ -2,7 +2,7 @@
 
 int Window::width;
 int Window::height;
-
+int Window::event;
 const char* Window::windowTitle = "GLFW Starter Project";
 
 // Objects to display.
@@ -21,6 +21,10 @@ glm::mat4 Window::projection; // Projection matrix.
 glm::vec3 Window::eye(0, 0, 20); // Camera position.
 glm::vec3 Window::center(0, 0, 0); // The point we are looking at.
 glm::vec3 Window::up(0, 1, 0); // The up direction of the camera.
+glm::vec3 Window::lastPoint;
+glm::vec3 Window::curPos;
+glm::vec3 Window::rotAxis;
+GLfloat Window::angle;
 
 // View matrix, defined by eye, center and up.
 glm::mat4 Window::view = glm::lookAt(Window::eye, Window::center, Window::up);
@@ -50,7 +54,8 @@ bool Window::initializeProgram() {
 	viewLoc = glGetUniformLocation(program, "view");
 	modelLoc = glGetUniformLocation(program, "model");
 	colorLoc = glGetUniformLocation(program, "color");
-
+    event = 0;
+    
 	return true;
 }
 
@@ -159,7 +164,7 @@ void Window::resizeCallback(GLFWwindow* window, int width, int height)
 void Window::idleCallback()
 {
 	// Perform any updates as necessary. 
-	currentObj->update();
+	//currentObj->update();
 }
 
 void Window::displayCallback(GLFWwindow* window)
@@ -252,3 +257,52 @@ void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
         currentObj->scale(0);
     }
 }
+
+void Window::cursor_callback(GLFWwindow* window, double xpos, double ypos){
+    // no action detected
+    if(event == 0) return;
+    // left press and hold
+    if(event == 1){
+        // Map the mouse position to a logical sphere location.
+        // Keep it in the class variable lastPoint.
+        glm::vec2 point = glm::vec2(xpos, ypos);
+        
+        // get world coord of first point click
+        lastPoint = trackBallMapping(point); 
+        // set event to handle cursor moving
+        event = 2;
+        return;
+    }
+    
+    // Get the current point in world coord
+    curPos = trackBallMapping(glm::vec2(xpos, ypos));
+    
+    /* Calculate the angle in radians, and clamp it between 0 and 90 degrees */
+    angle = glm::acos(std::min(1.0f, glm::dot(lastPoint, curPos)));
+    
+    /* Cross product to get the rotation axis, but it's still in camera coordinate */
+    rotAxis  = glm::cross(lastPoint, curPos);
+    currentObj->rotate(glm::rotate(glm::degrees(angle) * 0.05f, rotAxis));
+}
+
+void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods){
+    event = (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS);
+}
+
+glm::vec3 Window::trackBallMapping(glm::vec2 point){
+    glm::vec3 v;
+    float d;
+    
+    v.x = (2.0f * point.x - width) / width;
+    v.y = (height - 2.0f * point.y) / height;
+    v.z = 0.0f;
+    
+    d = glm::length(v);
+    d = (d < 1.0f) ? d : 1.0f;
+    v.z = sqrtf(1.001f - d * d);
+    
+    v = glm::normalize(v);
+    return v;
+}
+
+

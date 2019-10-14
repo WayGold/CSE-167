@@ -38,6 +38,7 @@ public:
 	void updatePointSize(GLfloat size);
 	void spin(float deg);
     void scale(bool direc);
+    void rotate(glm::mat4 matrix);
     
     GLfloat get_pointsize(){
         return pointSize;
