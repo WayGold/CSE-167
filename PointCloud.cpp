@@ -247,6 +247,39 @@ void PointCloud::scale(bool direc){
     }
 }
 
+void PointCloud::scale(glm::mat4 matrix){
+    model = matrix * model;
+}
+
+// function to modify the model matrix with respect to the rotate matrix
 void PointCloud::rotate(glm::mat4 matrix){
-    model = model * matrix;
+    model = matrix * model;
+}
+
+void PointCloud::translate(glm::mat4 matrix){
+    model = matrix * model;
+}
+
+glm::vec3 PointCloud::get_diffuse(){
+    return diffuse;
+}
+
+glm::vec3 PointCloud::get_specular(){
+    return specular;
+}
+
+float PointCloud::get_shininess(){
+    return shininess;
+}
+
+void PointCloud::set_diffuse(glm::vec3 input){
+    diffuse = input;
+}
+
+void PointCloud::set_specular(glm::vec3 input){
+    specular = input;
+}
+
+void PointCloud::set_shininess(float input){
+    shininess = input;
 }

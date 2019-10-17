@@ -27,6 +27,7 @@ public:
 	static int width;
 	static int height;
     static int event;
+    static int flag_n;
 	static const char* windowTitle;
 	static Cube* cube;
 	static PointCloud * cubePoints;
@@ -34,11 +35,12 @@ public:
     static PointCloud * bunny;
     static PointCloud * dragon;
     static PointCloud * cat;
+    static PointCloud * light;
 	static PointCloud * currentObj;
 	static glm::mat4 projection;
 	static glm::mat4 view;
     static glm::vec3 eye, center, up, lastPoint, curPos, rotAxis;
-	static GLuint program, projectionLoc, viewLoc, modelLoc, colorLoc;
+	static GLuint program, projectionLoc, viewLoc, modelLoc, colorLoc, light_position, light_linear, viewPos, light_color, obj_color, material_diffuse, material_specular, material_shininess, flag;
     static GLfloat angle;
 
 	static bool initializeProgram();

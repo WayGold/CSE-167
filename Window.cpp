@@ -3,6 +3,7 @@
 int Window::width;
 int Window::height;
 int Window::event;
+int Window::flag_n = 1;
 const char* Window::windowTitle = "GLFW Starter Project";
 
 // Objects to display.
@@ -13,8 +14,10 @@ PointCloud * Window::dragon;
 PointCloud * Window::bunny;
 PointCloud * Window::cat;
 
+
 // The object currently displaying.
 PointCloud * Window::currentObj;
+PointCloud * Window::light;
 
 glm::mat4 Window::projection; // Projection matrix.
 
@@ -24,6 +27,9 @@ glm::vec3 Window::up(0, 1, 0); // The up direction of the camera.
 glm::vec3 Window::lastPoint;
 glm::vec3 Window::curPos;
 glm::vec3 Window::rotAxis;
+
+glm::vec3 lightPos(1.0f, 1.0f, 5.0f);
+
 GLfloat Window::angle;
 
 // View matrix, defined by eye, center and up.
@@ -35,6 +41,15 @@ GLuint Window::projectionLoc; // Location of projection in shader.
 GLuint Window::viewLoc; // Location of view in shader.
 GLuint Window::modelLoc; // Location of model in shader.
 GLuint Window::colorLoc; // Location of color in shader.
+GLuint Window::light_position;
+GLuint Window::light_linear;
+GLuint Window::viewPos;
+GLuint Window::light_color;
+GLuint Window::obj_color;
+GLuint Window::material_diffuse;
+GLuint Window::material_shininess;
+GLuint Window::material_specular;
+GLuint Window::flag;
 
 bool Window::initializeProgram() {
 	// Create a shader program with a vertex shader and a fragment shader.
@@ -54,6 +69,16 @@ bool Window::initializeProgram() {
 	viewLoc = glGetUniformLocation(program, "view");
 	modelLoc = glGetUniformLocation(program, "model");
 	colorLoc = glGetUniformLocation(program, "color");
+    viewPos = glGetUniformLocation(program, "viewPos");
+    light_position = glGetUniformLocation(program, "lightPos");
+    light_linear = glGetUniformLocation(program, "light_linear");
+    light_color = glGetUniformLocation(program, "lightColor");
+    obj_color = glGetUniformLocation(program, "objectColor");
+    material_diffuse = glGetUniformLocation(program, "material.diffuse");
+    material_specular = glGetUniformLocation(program, "material.specular");
+    material_shininess  = glGetUniformLocation(program, "material.shininess");
+    flag = glGetUniformLocation(program, "flag");
+    
     event = 0;
     
 	return true;
@@ -65,12 +90,35 @@ bool Window::initializeObjects()
 	cube = new Cube(5.0f);
 	// Create a point cloud consisting of cube vertices.
 	cubePoints = new PointCloud("foo", 100);
+    
+    // BEAR CONFIG
     bear = new PointCloud("bear.obj", 0.25);
+    bear->set_diffuse(glm::vec3(1.0f, 1.0f,  1.0f));
+    bear->set_specular(glm::vec3(0.0f, 0.0f,  0.0f));
+    bear->set_shininess(0.0f);
+    bear->setColor(glm::vec3(0.5f, 0.5f, 1.0f));
+    
+    // DRAGON  CONFIG
     dragon = new PointCloud("dragon.obj", 0.25);
+    dragon->set_diffuse(glm::vec3(0.0f, 0.0f,  0.0f));
+    dragon->set_specular(glm::vec3(1.0f, 1.0f, 1.0f));
+    dragon->set_shininess(128.0f);
+    dragon->setColor(glm::vec3(0.3f, 0.4f, 1.0f));
+    
+    // BUNNY CONFIG
     bunny = new PointCloud("bunny.obj", 0.25);
-    cat = new PointCloud("cat.obj", 10);
-
-
+    bunny->set_diffuse(glm::vec3(1.0f, 1.0f,  1.0f));
+    bunny->set_specular(glm::vec3(1.0f, 1.0f,  1.0f));
+    bunny->set_shininess(128.0f);
+    bunny->setColor(glm::vec3(0.5f, 0.1f, 0.5f));
+    
+    //cat = new PointCloud("cat.obj", 10);
+    
+    light = new PointCloud("sphere.obj", 0.25);
+    
+    light->scale(glm::scale(glm::vec3(0.25f, 0.25f, 0.25f)));
+    light->translate(glm::translate(lightPos));
+    
 	// Set cube to be the first to display
 	currentObj = bear;
 
@@ -175,14 +223,32 @@ void Window::displayCallback(GLFWwindow* window)
 	// Specify the values of the uniform variables we are going to use.
 	glm::mat4 model = currentObj->getModel();
 	glm::vec3 color = currentObj->getColor();
+    glm::vec3 diffuse = currentObj->get_diffuse();
+    glm::vec3 specular = currentObj->get_specular();
+    float shininess = currentObj->get_shininess();
+    
 	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 	glUniform3fv(colorLoc, 1, glm::value_ptr(color));
+    
+    // light properties
+    glUniform3fv(light_position, 1, glm::value_ptr(lightPos));
+    glUniform3fv(viewPos, 1, glm::value_ptr(eye));
+    glUniform1f(light_linear, 0.09f);
+    glUniform3fv(light_color, 1, glm::value_ptr(glm::vec3(0.5f, 0.8f, 0.3f)));
+    glUniform3fv(obj_color, 1, glm::value_ptr(color));
+    
+    // material properties
+    glUniform3fv(material_diffuse, 1, glm::value_ptr(diffuse));
+    glUniform3fv(material_specular, 1, glm::value_ptr(specular));
+    glUniform1f(material_shininess, shininess);
+    glUniform1i(flag, flag_n);
 
 	// Render the object.
 	currentObj->draw();
-
+    //light->draw();
+    
 	// Gets events, including input such as keyboard and mouse or window resizing.
 	glfwPollEvents();
 	// Swap buffers.
@@ -191,9 +257,6 @@ void Window::displayCallback(GLFWwindow* window)
 
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	/*
-	 * TODO: Modify below to add your key callbacks.
-	 */
 	// Check for a key press.
 	if (action == GLFW_PRESS)
 	{
@@ -203,15 +266,35 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			// Close the window. This causes the program to also terminate.
 			glfwSetWindowShouldClose(window, GL_TRUE);				
 			break;
+                
+        // Mode 1
 		case GLFW_KEY_1:
-			// Set currentObj to cube
-			currentObj = bunny;
-			break;
-		case GLFW_KEY_2:
-			// Set currentObj to cubePoints
-			currentObj = cubePoints;
+			
 			break;
                 
+        // Mode 2
+		case GLFW_KEY_2:
+			
+			
+			break;
+        
+        // Mode 3
+        case GLFW_KEY_3:
+            
+            break;
+        
+        case GLFW_KEY_N:
+            if(flag_n){
+                glUniform1i(flag, 0);
+                flag_n = 0;
+            }
+            else{
+                glUniform1i(flag, 1);
+                flag_n = 1;
+            }
+            
+            break;
+        
         case GLFW_KEY_P:
             // Point size adjustment key 'P' pressed
             // Uppercase
@@ -258,7 +341,7 @@ void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     }
 }
 
-void Window::cursor_callback(GLFWwindow* window, double xpos, double ypos){
+void Window::cursor_callback(GLFWwindow* window, double xpos, double ypos){ 
     // no action detected
     if(event == 0) return;
     // left press and hold

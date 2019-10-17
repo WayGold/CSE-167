@@ -15,11 +15,16 @@ class Object
 {
 protected:
 	glm::mat4 model;
-	glm::vec3 color;
+    glm::vec3 color;
+    
 public:
 	glm::mat4 getModel() { return model; }
 	glm::vec3 getColor() { return color; }
-
+    
+    void setColor(glm::vec3 input) {
+        color = input;
+    }
+    
 	virtual void draw() = 0;
 	virtual void update() = 0;
 };
