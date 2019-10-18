@@ -4,6 +4,7 @@ int Window::width;
 int Window::height;
 int Window::event;
 int Window::flag_n = 1;
+int Window::mode = 1;
 const char* Window::windowTitle = "GLFW Starter Project";
 
 // Objects to display.
@@ -17,7 +18,7 @@ PointCloud * Window::cat;
 
 // The object currently displaying.
 PointCloud * Window::currentObj;
-PointCloud * Window::light;
+PointCloud * Window::sphere;
 
 glm::mat4 Window::projection; // Projection matrix.
 
@@ -28,7 +29,7 @@ glm::vec3 Window::lastPoint;
 glm::vec3 Window::curPos;
 glm::vec3 Window::rotAxis;
 
-glm::vec3 lightPos(1.0f, 1.0f, 5.0f);
+glm::vec3 lightPos(1.0f, 1.0f, 8.0f);
 
 GLfloat Window::angle;
 
@@ -93,10 +94,10 @@ bool Window::initializeObjects()
     
     // BEAR CONFIG
     bear = new PointCloud("bear.obj", 0.25);
-    bear->set_diffuse(glm::vec3(1.0f, 1.0f,  1.0f));
-    bear->set_specular(glm::vec3(0.0f, 0.0f,  0.0f));
+    bear->set_diffuse(glm::vec3(1.0f, 1.0f, 1.0f));
+    bear->set_specular(glm::vec3(0.0f, 0.0f, 0.0f));
     bear->set_shininess(0.0f);
-    bear->setColor(glm::vec3(0.5f, 0.5f, 1.0f));
+    bear->setColor(glm::vec3(0.8f, 0.5f, 0.0f));
     
     // DRAGON  CONFIG
     dragon = new PointCloud("dragon.obj", 0.25);
@@ -110,14 +111,19 @@ bool Window::initializeObjects()
     bunny->set_diffuse(glm::vec3(1.0f, 1.0f,  1.0f));
     bunny->set_specular(glm::vec3(1.0f, 1.0f,  1.0f));
     bunny->set_shininess(128.0f);
-    bunny->setColor(glm::vec3(0.5f, 0.1f, 0.5f));
+    bunny->setColor(glm::vec3(0.5f, 0.3f, 0.5f));
     
     //cat = new PointCloud("cat.obj", 10);
     
-    light = new PointCloud("sphere.obj", 0.25);
+    sphere = new PointCloud("sphere.obj", 0.25);
+    // sphere color = light color
+    sphere->setColor(glm::vec3(1.0f, 1.0f, 1.0f));
+    sphere->set_diffuse(glm::vec3(1.0f, 1.0f,  1.0f));
+    sphere->set_specular(glm::vec3(1.0f, 1.0f,  1.0f));
+    sphere->set_shininess(1.0f);
     
-    light->scale(glm::scale(glm::vec3(0.25f, 0.25f, 0.25f)));
-    light->translate(glm::translate(lightPos));
+    sphere->scale(glm::scale(glm::vec3(0.05f, 0.05f, 0.05f)));
+    sphere->translate(glm::translate(lightPos));
     
 	// Set cube to be the first to display
 	currentObj = bear;
@@ -236,7 +242,7 @@ void Window::displayCallback(GLFWwindow* window)
     glUniform3fv(light_position, 1, glm::value_ptr(lightPos));
     glUniform3fv(viewPos, 1, glm::value_ptr(eye));
     glUniform1f(light_linear, 0.09f);
-    glUniform3fv(light_color, 1, glm::value_ptr(glm::vec3(0.5f, 0.8f, 0.3f)));
+    glUniform3fv(light_color, 1, glm::value_ptr(glm::vec3(0.0f, 0.5f, 0.9f)));
     glUniform3fv(obj_color, 1, glm::value_ptr(color));
     
     // material properties
@@ -247,7 +253,20 @@ void Window::displayCallback(GLFWwindow* window)
 
 	// Render the object.
 	currentObj->draw();
-    //light->draw();
+    
+    glm::mat4 sphere_model = sphere->getModel();
+    glm::vec3 sphere_color = sphere->getColor();
+    glm::vec3 sphere_diffuse = sphere->get_diffuse();
+    glm::vec3 sphere_specular = sphere->get_specular();
+    float sphere_shininess = sphere->get_shininess();
+    
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(sphere_model));
+    glUniform3fv(obj_color, 1, glm::value_ptr(sphere_color));
+    glUniform3fv(material_diffuse, 1, glm::value_ptr(sphere_diffuse));
+    glUniform3fv(material_specular, 1, glm::value_ptr(sphere_specular));
+    glUniform1f(material_shininess, sphere_shininess);
+
+    sphere->draw();
     
 	// Gets events, including input such as keyboard and mouse or window resizing.
 	glfwPollEvents();
@@ -269,18 +288,17 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
                 
         // Mode 1
 		case GLFW_KEY_1:
-			
+            mode = 1;
 			break;
                 
         // Mode 2
 		case GLFW_KEY_2:
-			
-			
+            mode = 2;
 			break;
         
         // Mode 3
         case GLFW_KEY_3:
-            
+            mode = 3;
             break;
         
         case GLFW_KEY_N:
@@ -331,14 +349,35 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 }
 
 void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
-    // Scroll up
-    if(yoffset > 0){
-        currentObj->scale(1);
+    switch (mode) {
+        case 1:
+            // Scroll up
+            if(yoffset > 0){
+                currentObj->scale(1);
+            }
+            // Scroll down
+            else{
+                currentObj->scale(0);
+            }
+            break;
+            
+        case 2:
+            if(yoffset > 0){
+                //sphere->translate()
+            }
+            else{
+                
+            }
+            break;
+            
+        case 3:
+            
+            break;
+            
+        default:
+            break;
     }
-    // Scroll down
-    else{
-        currentObj->scale(0);
-    }
+    
 }
 
 void Window::cursor_callback(GLFWwindow* window, double xpos, double ypos){ 
@@ -359,13 +398,32 @@ void Window::cursor_callback(GLFWwindow* window, double xpos, double ypos){
     
     // Get the current point in world coord
     curPos = trackBallMapping(glm::vec2(xpos, ypos));
-    
     /* Calculate the angle in radians, and clamp it between 0 and 90 degrees */
     angle = glm::acos(std::min(1.0f, glm::dot(lastPoint, curPos)));
-    
     /* Cross product to get the rotation axis, but it's still in camera coordinate */
     rotAxis  = glm::cross(lastPoint, curPos);
-    currentObj->rotate(glm::rotate(glm::degrees(angle) * 0.05f, rotAxis));
+    
+    if(mode == 1){
+        currentObj->rotate(glm::rotate(glm::degrees(angle) * 0.05f, rotAxis));
+    }
+    else if(mode == 2){
+        sphere->rotate(glm::rotate(glm::degrees(angle) * 0.05f, rotAxis));
+        glm::vec4 rotLight = glm::vec4(lightPos.x, lightPos.y, lightPos.z, 1.0f);
+        rotLight = glm::rotate(glm::degrees(angle) * 0.05f, rotAxis) * rotLight;
+        lightPos.x = rotLight.x;
+        lightPos.y = rotLight.y;
+        lightPos.z = rotLight.z;
+    }
+    else{
+        currentObj->rotate(glm::rotate(glm::degrees(angle) * 0.05f, rotAxis));
+        sphere->rotate(glm::rotate(glm::degrees(angle) * 0.05f, rotAxis));
+        glm::vec4 rotLight = glm::vec4(lightPos.x, lightPos.y, lightPos.z, 1.0f);
+        rotLight = glm::rotate(glm::degrees(angle) * 0.05f, rotAxis) * rotLight;
+        lightPos.x = rotLight.x;
+        lightPos.y = rotLight.y;
+        lightPos.z = rotLight.z;
+    }
+    
 }
 
 void Window::mouse_callback(GLFWwindow* window, int button, int action, int mods){

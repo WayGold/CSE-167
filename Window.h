@@ -28,6 +28,8 @@ public:
 	static int height;
     static int event;
     static int flag_n;
+    static int mode;
+    
 	static const char* windowTitle;
 	static Cube* cube;
 	static PointCloud * cubePoints;
@@ -35,7 +37,7 @@ public:
     static PointCloud * bunny;
     static PointCloud * dragon;
     static PointCloud * cat;
-    static PointCloud * light;
+    static PointCloud * sphere;
 	static PointCloud * currentObj;
 	static glm::mat4 projection;
 	static glm::mat4 view;

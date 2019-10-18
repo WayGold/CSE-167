@@ -30,6 +30,7 @@ private:
 	GLfloat pointSize;
     glm::vec3 diffuse;
     glm::vec3 specular;
+    glm::vec3 center;
     GLfloat shininess;
 public:
 	PointCloud(std::string objFilename, GLfloat pointSize);
@@ -47,7 +48,9 @@ public:
     
     glm::vec3 get_diffuse();
     glm::vec3 get_specular();
+    glm::vec3 get_center();
     GLfloat get_shininess();
+
     void set_diffuse(glm::vec3 input);
     void set_specular(glm::vec3 input);
     void set_shininess(float input);

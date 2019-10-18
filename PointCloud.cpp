@@ -122,7 +122,9 @@ PointCloud::PointCloud(std::string objFilename, GLfloat pointSize)
     x_mid = (x_max + x_min) / 2;
     y_mid = (y_max + y_min) / 2;
     z_mid = (z_max + z_min) / 2;
-
+    
+    center = glm::vec3(x_mid, y_mid, z_mid);
+    
 	/*
 	 * TODO: Section 4, you will need to normalize the object to fit in the
 	 * screen. 
@@ -266,6 +268,10 @@ glm::vec3 PointCloud::get_diffuse(){
 
 glm::vec3 PointCloud::get_specular(){
     return specular;
+}
+
+glm::vec3 PointCloud::get_center(){
+    return center;
 }
 
 float PointCloud::get_shininess(){
