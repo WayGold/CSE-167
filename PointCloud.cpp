@@ -123,8 +123,6 @@ PointCloud::PointCloud(std::string objFilename, GLfloat pointSize)
     y_mid = (y_max + y_min) / 2;
     z_mid = (z_max + z_min) / 2;
     
-    center = glm::vec3(x_mid, y_mid, z_mid);
-    
 	/*
 	 * TODO: Section 4, you will need to normalize the object to fit in the
 	 * screen. 
@@ -274,6 +272,45 @@ glm::vec3 PointCloud::get_center(){
     return center;
 }
 
+glm::vec3 PointCloud::calc_center(){
+    float x_max_c, y_max_c, z_max_c, x_min_c, y_min_c, z_min_c, x_mid_c, y_mid_c, z_mid_c;
+    
+    x_max_c = y_max_c = z_max_c = x_min_c = y_min_c = z_min_c = 0;
+    
+    for(int i = 0; i < points.size(); i++){
+        if(i == 0){
+            x_max_c = points[i].x;
+            x_min_c = points[i].x;
+            y_max_c = points[i].y;
+            y_min_c = points[i].y;
+            z_max_c = points[i].z;
+            z_min_c = points[i].z;
+        }
+        else{
+            // track the max and min of each coordinates while reading in
+            x_max_c = (points[i].x > x_max_c) ? points[i].x : x_max_c;
+            x_min_c = (points[i].x < x_min_c) ? points[i].x : x_min_c;
+            
+            y_max_c = (points[i].y > y_max_c) ? points[i].y : y_max_c;
+            y_min_c = (points[i].y < y_min_c) ? points[i].y : y_min_c;
+            
+            z_max_c = (points[i].z > z_max_c) ? points[i].z : z_max_c;
+            z_min_c = (points[i].z < z_min_c) ? points[i].z : z_min_c;
+        }
+    }
+    //std::cerr << "x max c = " << x_max_c << std::endl;
+    //std::cerr << "x min c = " << x_min_c << std::endl;
+    
+    glm::vec3 center_new;
+    x_mid_c = (x_max_c + x_min_c) / 2;
+    y_mid_c = (y_max_c + y_min_c) / 2;
+    z_mid_c = (z_max_c + z_min_c) / 2;
+    
+    center_new = glm::vec3(x_mid_c, y_mid_c, z_mid_c);
+    //std::cerr << "Calc center: (" << x_mid_c << ", " << y_mid_c << ", " << z_mid_c << ")" << std::endl;
+    return center_new;
+}
+
 float PointCloud::get_shininess(){
     return shininess;
 }
@@ -289,3 +326,4 @@ void PointCloud::set_specular(glm::vec3 input){
 void PointCloud::set_shininess(float input){
     shininess = input;
 }
+

@@ -111,7 +111,7 @@ bool Window::initializeObjects()
     bunny->set_diffuse(glm::vec3(1.0f, 1.0f,  1.0f));
     bunny->set_specular(glm::vec3(1.0f, 1.0f,  1.0f));
     bunny->set_shininess(128.0f);
-    bunny->setColor(glm::vec3(0.5f, 0.3f, 0.5f));
+    bunny->setColor(glm::vec3(0.1f, 0.8f, 0.5f));
     
     //cat = new PointCloud("cat.obj", 10);
     
@@ -350,7 +350,7 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 
 void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
     switch (mode) {
-        case 1:
+        case 1:{
             // Scroll up
             if(yoffset > 0){
                 currentObj->scale(1);
@@ -360,20 +360,37 @@ void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
                 currentObj->scale(0);
             }
             break;
+        }
+        case 2:{
+            glm::vec3 direction = glm::normalize(currentObj->calc_center() - lightPos);
             
-        case 2:
             if(yoffset > 0){
-                //sphere->translate()
+                sphere->translate(glm::translate(-direction));
+                lightPos = sphere->getModel() * glm::vec4(0, 0, 0, 1);
             }
             else{
-                
+                sphere->translate(glm::translate(direction));
+                lightPos = sphere->getModel() * glm::vec4(0, 0, 0, 1);
             }
-            break;
-            
-        case 3:
             
             break;
+        }
+        case 3:{
+            glm::vec3 direction = glm::normalize(currentObj->calc_center() - lightPos);
             
+            if(yoffset > 0){
+                sphere->translate(glm::translate(-direction));
+                lightPos = sphere->getModel() * glm::vec4(0, 0, 0, 1);
+                currentObj->scale(1);
+            }
+            else{
+                sphere->translate(glm::translate(direction));
+                lightPos = sphere->getModel() * glm::vec4(0, 0, 0, 1);
+                currentObj->scale(0);
+            }
+            
+            break;
+        }
         default:
             break;
     }

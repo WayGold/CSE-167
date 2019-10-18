@@ -49,6 +49,7 @@ public:
     glm::vec3 get_diffuse();
     glm::vec3 get_specular();
     glm::vec3 get_center();
+    glm::vec3 calc_center();
     GLfloat get_shininess();
 
     void set_diffuse(glm::vec3 input);
